@@ -198,7 +198,7 @@ public:
             {
                 if(info[i].first == label)
                 {
-                    registers[rd] =(info[i].second);
+                    registers[rd] =(info[i].second)*4;
                     break;
                 }
             }

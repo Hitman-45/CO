@@ -9,7 +9,8 @@ class Processor
 {
 private:
     vector<int> memory;
-    vector<pair<string, int>> info;
+    vector<pair<string, int>> info1;
+    vector<pair<string, int>> info2;
     vector<Core> cores;
     int clock;
 
@@ -35,7 +36,10 @@ public:
         {   
             for (int i = 0; cores[j].pc < cores[j].program.size(); ++i) 
             {
-                cores[j].execute(memory, info);
+                if(j==0)
+                    cores[j].execute(memory, info1);
+                if(j==1)
+                    cores[j].execute(memory, info2);
             }
             clock++;
         }
