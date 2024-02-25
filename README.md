@@ -50,11 +50,16 @@ The C++ code simulates a processor executing a series of instructions. Each inst
 - First of all while writing the code we got stuck in how can we load program such that it can be accesable in core class. In core class we have written methods and diffrent instruction hendling as example add, addi, la, lw slli, sw etc. after than we have to use registers for given program and their instructions.
 - After core class we started processor class in which we have memory and through this class we are sending memory into core class and handling it. But the problem was that how can we send it but after all we were ale to manage it through run function. In processor we have given option for multiple cores. So from Processor class we are handling multiple cores.
 - First of all through setCoreProgram we are loading the program in core class withj help of core no. As an example if you type (core no i, program) that program will load in ith core.
+- we are facing difficuties so we decided not to write x before any register so as per our design no need to write x before each and every registers that's the main point.
 - After loading the program we have to differentiate .data part and .text part. Here .data part stored in memory segment. It was a bit confusing like how can we store but after an idea we are sending memory as an address such that our processor class should have same memory that has been worked through core class. After all it was a efficiently working.
 - Now we stuck at place like how can we know that la is searching for that thing only which is required to manage it we needed another vector which will store memory's specific things lables and their address.
 - By that we started lw and sw function after all it was working and that was motivating to complete it.After that we are passing just direct instruction through main and they were working. Then we modifed it witha minor changes.
 - Now there was a time to load a code through file and we load it through file but file was not loading properly so we have to study little bit about it after all that Our code was ready for single core and it was working.
 - Last part of code just trasfer single core to dualcore we just changed number of core as an input from one to two.But the problem was that it was mixing memory of both cores that was a bit surpising so we started finding an error. It was a small error but it took almost half day on saturday.After all this we load file in both cores and Our code is working so good.
+
+---
+## Note
+- Due to simplify code we are not writing x before any register and if you write x before register it won't work as per our simulator design.
 ---
 ## Example
 - An example program is provided in the main function of the code. It sets up a single-core processor, loads a program into the core, and runs the simulation. The program performs a simple loop with arithmetic and shifting operations.
