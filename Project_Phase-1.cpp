@@ -26,10 +26,23 @@ int main()
     
     sim.setCoreProgram(0, instructions);
 
-    sim.setCoreProgram(1, instructions);
+    ifstream inputFile1("./selection_sort.asm");
+    if (!inputFile1.is_open()) {
+        cerr << "Error: Could not open the file.\n";
+        return 1; 
+    }
+
+    vector<string> instructions1;
+    string line1;
+    while (getline(inputFile1, line1)) {
+        instructions1.push_back(line1);
+    }
+
+    sim.setCoreProgram(1, instructions1);
     
     sim.run();
 
+    cout << endl;
     for (int i = 0; i < 2; ++i) {
         const vector<int>& regs = sim.getCoreRegisters(i);
         cout<<"core-"<<i<<": ";
