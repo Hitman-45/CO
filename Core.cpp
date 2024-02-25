@@ -154,14 +154,14 @@ public:
             }
             return;
         }
-        else if(opcode=="srl")
+        else if(opcode=="srli")
         {
             //srl x5 x20 1
             int rd, rs1,value;
             iss>> rd >> rs1 >> value;
             registers[rd] = registers[rs1]>>value;
         }
-        else if(opcode=="sll")
+        else if(opcode=="slli")
         {
             //sll x5 x20 1
             int rd, rs1,value;

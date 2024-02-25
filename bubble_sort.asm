@@ -10,7 +10,7 @@ beq 2 17 Exit
 addi 3 0 0
 la 16 base
 loop2:
-beq 3 17 end2
+beq 3 1 end2
 lw 4 0(16)
 lw 5 4(16)
 ble 4 5 no_swap
