@@ -1,15 +1,16 @@
 .data
 base: .word 5 9 4 3 6 10 2 7 8 1 11 19 18 16 12 15 13 17 20 14 
 .text
-Lw 16 base
+la 16 base
 addi 1 0 20
+addi 17 1 -1
 addi 2 0 0
 loop:
-beq 2 1 Exit
+beq 2 17 Exit
 addi 3 0 0
-Lw 16 base
+la 16 base
 loop2:
-beq 3 1 end2
+beq 3 17 end2
 lw 4 0(16)
 lw 5 4(16)
 ble 4 5 no_swap

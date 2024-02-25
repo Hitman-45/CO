@@ -189,9 +189,9 @@ public:
             iss >> rd >> value;
             registers[rd] = value;
         }
-        else if(opcode == "Lw")
+        else if(opcode == "la")
         {
-            // Lw x5 label
+            //la x5 label
             string label; int rd;
             iss>>rd>>label;
             for(int i=0; i<info.size(); i++)
