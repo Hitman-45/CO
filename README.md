@@ -23,3 +23,50 @@ The C++ code consists of two important classes: Core and Processor and a main fu
   The entry point of the program where the simulation is configured and executed. Initializes the processor, sets the program for a core, runs the simulation, and prints the registers of the core after execution.
 
 ---
+## Instructions
+The C++ code simulates a processor executing a series of instructions. Each instruction corresponds to a specific operation in a simplified instruction set architecture (ISA).The supported instructions are as follows:
+- add: Add two registers and store the result in another register.
+- addi: Add an immediate value to a register and store the result in another register.
+- sub: Subtract one register from another and store the result in another register.
+- beq: Branch if two registers are equal.
+- ble: Branch if one register is less than or equal to another.
+- bgt: Branch if one register is greater than another.
+- j: Unconditional jump to a label.
+- srl: Logical right shift a register by a specified amount.
+- sll: Logical left shift a register by a specified amount.
+- slt: Set a register to 1 if one register is less than another, otherwise set it to 0.
+- li: Load an immediate value into a register.
+- lw: Load a word from memory into a register.
+- sw: Store a word from a register into memory.
+
+---
+## Example
+An example program is provided in the main function of the code. It sets up a single-core processor, loads a program into the core, and runs the simulation. The program performs a simple loop with arithmetic and shifting operations.
+
+Processor sim(1);
+sim.setCoreProgram(0, {
+    .data
+    .text
+    addi 4 0 0
+    addi 5 0 8
+    addi 1 0 20
+    loop:
+    beq 4 5 exit
+    addi 1 1 1
+    addi 2 1 3
+    add 3 1 2
+    addi 4 4 1
+    j loop
+    exit:
+    srl 5 5 1
+    sll 4 4 1
+});
+sim.run();
+for (int i = 0; i < 1; ++i) {
+    const vector<int>& regs = sim.getCoreRegisters(i);
+    for (int reg : regs) {
+        cout << reg << " ";
+    }
+    cout << endl;
+}
+first of all we just make base code to check wheather every instructions that we made are working properly or not. It was mainly checking branch instruction and jump instructions for given base code. At the end it was working properly so our base was perfect at that time now after that we tried to manipulation of memory to work code properly.
