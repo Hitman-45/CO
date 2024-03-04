@@ -18,15 +18,21 @@ public:
         pc = 0;
     }  
 
-    void execute(vector<int> &memory, vector<pair<string, int>> &info) 
+    void execute(vector<int> &memory, vector<pair<string, int>> &info, int* clock) 
     {
         if (pc > program.size())
             return;
 
+        // Fetch Instruction
         string line = program[pc];
         string opcode;
         istringstream iss(line);
         iss >> opcode;
+        clock++;
+
+        // Decode Instruction (not explicitly separated, combined with Fetch for simplicity)
+        // The decode stage usually involves interpreting the opcode and extracting operands,
+        // but for simplicity, we're combining it with the fetch stage in this implementation.
 
         if(opcode==".data")
         {
@@ -222,6 +228,7 @@ public:
         }
 
         pc++;
+        clock++;
     }
 
     void loadProgram(const  vector<string> &prog) 

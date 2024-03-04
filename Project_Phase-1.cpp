@@ -1,9 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <sstream>
-#include <algorithm>
 #include <fstream>
-using namespace std;
 #include "Processor.cpp"
 
 int main() 

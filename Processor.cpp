@@ -1,9 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <sstream>
-#include <algorithm>
 #include "Core.cpp"
-using namespace std;
 
 class Processor 
 {
@@ -37,9 +32,9 @@ public:
             for (int i = 0; cores[j].pc < cores[j].program.size(); ++i) 
             {
                 if(j==0)
-                    cores[j].execute(memory, info1);
+                    cores[j].execute(memory, info1, &clock);
                 if(j==1)
-                    cores[j].execute(memory, info2);
+                    cores[j].execute(memory, info2, &clock);
             }
             clock++;
         }
