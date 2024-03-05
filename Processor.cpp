@@ -73,4 +73,9 @@ public:
     {
         return memory;
     }
+
+    int getclock()
+    {
+        return clock;
+    }
 };

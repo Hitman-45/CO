@@ -54,5 +54,7 @@ int main()
         if(x != 0)
             cout<<x<<" ";
     }
+
+    cout<<endl<<"clock: "<<sim.getclock()<<endl;
     return 0;
 }

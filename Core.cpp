@@ -28,11 +28,12 @@ public:
         string opcode;
         istringstream iss(line);
         iss >> opcode;
-        clock++;
+        (*clock)++;
 
         // Decode Instruction (not explicitly separated, combined with Fetch for simplicity)
         // The decode stage usually involves interpreting the opcode and extracting operands,
         // but for simplicity, we're combining it with the fetch stage in this implementation.
+
 
         if(opcode==".data")
         {
@@ -126,6 +127,24 @@ public:
                     }
                 }
             }
+        }
+        else if (opcode == "blt") 
+        {
+            //ble x1 x2 Label
+            int rs1, rs2;
+            string label;
+            iss >> rs1 >> rs2 >> label;
+            label += ':' ;
+            if (registers[rs1] < registers[rs2]) 
+            {
+                for(int i=0; i<program.size(); i++)
+                {
+                    if(label==program[i])
+                    {
+                        pc = i;
+                    }
+                }
+            }
         } 
         else if (opcode == "bgt") 
         {
@@ -135,6 +154,24 @@ public:
             iss >> rs1 >> rs2 >> label;
             label += ':' ;
             if (registers[rs1] > registers[rs2]) 
+            {
+                for(int i=0; i<program.size(); i++)
+                {
+                    if(label==program[i])
+                    {
+                        pc = i;
+                    }
+                }
+            }
+        } 
+        else if (opcode == "bge") 
+        {
+            //bgt x5 x6 Label
+            int rs1, rs2;
+            string label;
+            iss >> rs1 >> rs2 >> label;
+            label += ':' ;
+            if (registers[rs1] >= registers[rs2]) 
             {
                 for(int i=0; i<program.size(); i++)
                 {
@@ -228,7 +265,6 @@ public:
         }
 
         pc++;
-        clock++;
     }
 
     void loadProgram(const  vector<string> &prog) 
