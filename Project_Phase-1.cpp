@@ -55,6 +55,18 @@ int main()
             cout<<x<<" ";
     }
 
-    cout<<endl<<"clock: "<<sim.getclock()<<endl;
+    cout<<endl;
+    for (int i = 0; i < 2; ++i) 
+    {
+        int x = sim.getcore_clock(i);
+        cout<<"Clock Cycles in core-"<<i<<" is: "<<x<<endl;
+    }
+    
+    for (int i = 0; i < 2; ++i) 
+    {
+        int x = sim.getcoreInstr_retired(i);
+        cout<<"Instructions-retired in core-"<<i<<" is: "<<x<<endl;
+    }
+
     return 0;
 }

@@ -7,13 +7,11 @@ private:
     vector<pair<string, int>> info1;
     vector<pair<string, int>> info2;
     vector<Core> cores;
-    int clock;
 
 public:
     Processor(int numCores)
     {
         cores.resize(numCores);
-        clock = 0;
     }
 
     int maxProgramLength()
@@ -32,11 +30,10 @@ public:
             for (int i = 0; cores[j].pc < cores[j].program.size(); ++i) 
             {
                 if(j==0)
-                    cores[j].execute(memory, info1, &clock);
+                    cores[j].fetch(memory, info1);
                 if(j==1)
-                    cores[j].execute(memory, info2, &clock);
+                    cores[j].fetch(memory, info2);
             }
-            clock++;
         }
     }
 
@@ -69,13 +66,24 @@ public:
         }
     }
 
+    int getcoreInstr_retired(int coreIndex)
+    {
+        if (coreIndex < cores.size()) 
+        {
+            return cores[coreIndex].get_instr_retired();
+        } 
+    }
+
     vector<int>& getMemory() 
     {
         return memory;
     }
 
-    int getclock()
+    int getcore_clock(int coreIndex)
     {
-        return clock;
+        if (coreIndex < cores.size()) 
+        {
+            return cores[coreIndex].get_clock();
+        }
     }
 };

@@ -10,30 +10,49 @@ public:
     vector<int> registers;
     int pc;
     vector<string> program;
+    int instr_retired;
+    int clock;
+
+    // Define pipeline registers
+    int EX_MEM_rd, EX_MEM_aluResult, MEM_WB_rd, MEM_WB_memData;
+    bool EX_MEM_valid, MEM_WB_valid;
 
 public:
     Core()
     {
         registers.resize(32,0);
         pc = 0;
+        instr_retired = 0;
+        clock = 0;
+
+        // Initialize pipeline registers
+        EX_MEM_valid = false;
+        MEM_WB_valid = false;
     }  
 
-    void execute(vector<int> &memory, vector<pair<string, int>> &info, int* clock) 
+    void fetch(vector<int> &memory, vector<pair<string, int>> &info) 
     {
         if (pc > program.size())
             return;
 
-        // Fetch Instruction
-        string line = program[pc];
+        if (pc < program.size()) 
+        {
+            string line = program[pc];
+            clock++;
+            // Decode and execute in the next stage
+            decode_execute(line, memory, info);
+        }
+    }
+
+    void decode_execute(const string& line, vector<int>& memory, vector<pair<string, int>>& info) 
+    {
+        
+        // Decode Instruction
         string opcode;
         istringstream iss(line);
         iss >> opcode;
-        (*clock)++;
-
-        // Decode Instruction (not explicitly separated, combined with Fetch for simplicity)
-        // The decode stage usually involves interpreting the opcode and extracting operands,
-        // but for simplicity, we're combining it with the fetch stage in this implementation.
-
+        instr_retired++;
+        // clock++;
 
         if(opcode==".data")
         {
@@ -71,6 +90,58 @@ public:
                 pc++;
             }    
         }
+        if (opcode == "add" || opcode == "addi" || opcode == "sub") 
+        {
+            clock++;
+            // Execute arithmetic/logical instructions
+            execute_arithmetic(opcode, iss);
+        }
+        else if(opcode == "beq" || opcode == "ble" || opcode == "blt" || opcode == "bgt" || opcode == "bge" || opcode == "j")
+        {
+            clock++;
+            // Execute branch/jump instructions
+            execute_branch(opcode, iss);
+        }
+        else if(opcode=="srli" || opcode=="slli" || opcode=="slt")
+        {
+            clock++;
+            // Execute bitwise manipulation instructions
+            execute_bitwise(opcode, iss);
+        }
+        else if (opcode == "lw" || opcode == "sw" || opcode == "la" || opcode == "la") 
+        {
+            clock++;
+            // Execute load/store instructions
+            execute_memory(opcode, iss, memory, info);
+        } 
+        
+        pc++;
+    }
+
+    void loadProgram(const  vector<string> &prog) 
+    {
+        program = prog;
+    }
+
+    vector<int>& getRegisters()
+    {
+        return registers;
+    }
+
+    int get_instr_retired()
+    {
+        return instr_retired;
+    }
+
+    int get_clock()
+    {
+        return clock;
+    }
+
+private:
+
+    void execute_arithmetic(const string& opcode, istringstream& iss) 
+    {
         if (opcode == "add") 
         {
             // add x1 x2 x3
@@ -92,7 +163,53 @@ public:
             iss >> rd >> rs1 >> rs2;
             registers[rd] = registers[rs1] - registers[rs2];
         }
-        else if (opcode == "beq") 
+    }
+
+    void execute_memory(const string& opcode, istringstream& iss, vector<int>& memory,  vector<pair<string, int>>& info) 
+    {
+        if (opcode == "li") 
+        {
+            //ld x3 value
+            int rd, value;
+            iss >> rd >> value;
+            registers[rd] = value;
+        }
+        else if(opcode == "la")
+        {
+            //la x5 label
+            string label; int rd;
+            iss>>rd>>label;
+            for(int i=0; i<info.size(); i++)
+            {
+                if(info[i].first == label)
+                {
+                    registers[rd] =(info[i].second)*4;
+                    break;
+                }
+            }
+        }
+        else if (opcode == "lw") 
+        {
+            //lw x5 7(x20)
+            int rd, offset, rs1;
+            char x;
+            iss >> rd >> offset>> x >> rs1;
+            registers[rd] = memory[registers[rs1]/4 + offset/4];
+        }
+        else if (opcode == "sw")
+        {
+            // sw x5 8(x20)
+            int rs1, offset, rd;
+            char x;
+            iss >> rs1 >> offset>> x >> rd;
+            // cout<<registers[6]<<endl;
+            memory[registers[rd]/4 + offset/4] = registers[rs1];
+        }
+    }
+
+    void execute_branch(const string& opcode, istringstream& iss)
+    {
+        if (opcode == "beq") 
         {
             //beq x5 x6 Label
             int rs1, rs2;
@@ -197,7 +314,11 @@ public:
             }
             return;
         }
-        else if(opcode=="srli")
+    }
+
+    void execute_bitwise(const string& opcode, istringstream& iss)
+    {
+        if(opcode=="srli")
         {
             //srl x5 x20 1
             int rd, rs1,value;
@@ -225,55 +346,5 @@ public:
                 registers[rd] = 0;
             }
         }
-        else if (opcode == "li") 
-        {
-            //ld x3 value
-            int rd, value;
-            iss >> rd >> value;
-            registers[rd] = value;
-        }
-        else if(opcode == "la")
-        {
-            //la x5 label
-            string label; int rd;
-            iss>>rd>>label;
-            for(int i=0; i<info.size(); i++)
-            {
-                if(info[i].first == label)
-                {
-                    registers[rd] =(info[i].second)*4;
-                    break;
-                }
-            }
-        }
-        else if (opcode == "lw") 
-        {
-            //lw x5 7(x20)
-            int rd, offset, rs1;
-            char x;
-            iss >> rd >> offset>> x >> rs1;
-            registers[rd] = memory[registers[rs1]/4 + offset/4];
-        }
-        else if (opcode == "sw")
-        {
-            // sw x5 8(x20)
-            int rs1, offset, rd;
-            char x;
-            iss >> rs1 >> offset>> x >> rd;
-            // cout<<registers[6]<<endl;
-            memory[registers[rd]/4 + offset/4] = registers[rs1];
-        }
-
-        pc++;
-    }
-
-    void loadProgram(const  vector<string> &prog) 
-    {
-        program = prog;
-    }
-
-    vector<int>& getRegisters()
-    {
-        return registers;
     }
 };
