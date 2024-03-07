@@ -14,7 +14,10 @@ public:
     int clock;
 
     // Define pipeline registers
-    int EX_MEM_rd, EX_MEM_aluResult, MEM_WB_rd, MEM_WB_memData;
+    int temp_WB;
+    int temp_MEM;
+    int temp_EX;
+    int temp_Dec;
     bool EX_MEM_valid, MEM_WB_valid;
 
 public:
@@ -39,20 +42,21 @@ public:
         {
             string line = program[pc];
             clock++;
+            instr_retired++;
             // Decode and execute in the next stage
-            decode_execute(line, memory, info);
+            decode(line, memory, info);
+            pc++;
         }
     }
 
-    void decode_execute(const string& line, vector<int>& memory, vector<pair<string, int>>& info) 
+    void decode(const string& line, vector<int>& memory, vector<pair<string, int>>& info) 
     {
         
         // Decode Instruction
         string opcode;
         istringstream iss(line);
         iss >> opcode;
-        instr_retired++;
-        // clock++;
+        clock++;
 
         if(opcode==".data")
         {
@@ -90,33 +94,41 @@ public:
                 pc++;
             }    
         }
-        if (opcode == "add" || opcode == "addi" || opcode == "sub") 
+       else
+        {
+            // Execute stage
+            execute(opcode, iss, memory, info);
+        }
+    }
+
+    void execute(const string& opcode, istringstream& iss, vector<int>& memory, vector<pair<string, int>>& info)
+    {
+        if (opcode == "add" || opcode == "addi" || opcode == "sub" || opcode == "li") 
         {
             clock++;
             // Execute arithmetic/logical instructions
-            execute_arithmetic(opcode, iss);
+            execute_arithmetic(opcode, iss, memory);
         }
         else if(opcode == "beq" || opcode == "ble" || opcode == "blt" || opcode == "bgt" || opcode == "bge" || opcode == "j")
         {
             clock++;
             // Execute branch/jump instructions
-            execute_branch(opcode, iss);
+            execute_branch(opcode, iss, memory);
         }
         else if(opcode=="srli" || opcode=="slli" || opcode=="slt")
         {
             clock++;
             // Execute bitwise manipulation instructions
-            execute_bitwise(opcode, iss);
+            execute_bitwise(opcode, iss, memory);
         }
-        else if (opcode == "lw" || opcode == "sw" || opcode == "la" || opcode == "la") 
+        else if (opcode == "lw" || opcode == "sw" || opcode == "la") 
         {
             clock++;
-            // Execute load/store instructions
+            // Execute memory instructions
             execute_memory(opcode, iss, memory, info);
-        } 
-        
-        pc++;
+        }
     }
+
 
     void loadProgram(const  vector<string> &prog) 
     {
@@ -138,43 +150,76 @@ public:
         return clock;
     }
 
+    void Memory(int temp,int rd, int type, vector<int>& memory)
+    {
+        if(type == 0)
+        {
+            WB(temp,rd,type);
+        }
+        else if(type == 1)
+        {
+            memory[rd] = temp;
+            WB(temp,rd,type);
+        }
+        else if(type == 2)
+        {
+            WB(temp,rd,type);
+        }
+    }
+
+    void WB(int temp,int rd, int type)
+    {
+        if(type==0)
+            registers[rd] = temp;
+        else if(type==1)
+            type = 1;
+        else if(type==2)
+            pc = temp;
+    }
+
 private:
 
-    void execute_arithmetic(const string& opcode, istringstream& iss) 
+    void execute_arithmetic(const string& opcode, istringstream& iss, vector<int>& memory) 
     {
+        int temp;
         if (opcode == "add") 
         {
             // add x1 x2 x3
             int rd, rs1, rs2;
             iss >> rd >> rs1 >> rs2;
-            registers[rd] = registers[rs1] + registers[rs2];
+            temp = registers[rs1] + registers[rs2];
+            Memory(temp, rd, 0, memory);
         } 
         else if (opcode == "addi") 
         {
             //addi x5 x20 3
             int rd, rs1, imm;
             iss >> rd >> rs1 >> imm;
-            registers[rd] = registers[rs1] + imm;
+            temp = registers[rs1] + imm;
+            Memory(temp, rd, 0, memory);
         }
         else if (opcode == "sub") 
         {
             //sub x1 x2 x3
             int rd, rs1, rs2;
             iss >> rd >> rs1 >> rs2;
-            registers[rd] = registers[rs1] - registers[rs2];
+            temp = registers[rs1] - registers[rs2];
+            Memory(temp, rd, 0, memory);
+        }
+        else if (opcode == "li") 
+        {
+            //ld x3 value
+            int rd, value;
+            iss >> rd >> value;
+            temp = value;
+            Memory(temp, rd, 0, memory);
         }
     }
 
     void execute_memory(const string& opcode, istringstream& iss, vector<int>& memory,  vector<pair<string, int>>& info) 
     {
-        if (opcode == "li") 
-        {
-            //ld x3 value
-            int rd, value;
-            iss >> rd >> value;
-            registers[rd] = value;
-        }
-        else if(opcode == "la")
+        int temp;
+        if(opcode == "la")
         {
             //la x5 label
             string label; int rd;
@@ -183,7 +228,8 @@ private:
             {
                 if(info[i].first == label)
                 {
-                    registers[rd] =(info[i].second)*4;
+                    temp =(info[i].second)*4;
+                    Memory(temp, rd, 0, memory);
                     break;
                 }
             }
@@ -194,21 +240,24 @@ private:
             int rd, offset, rs1;
             char x;
             iss >> rd >> offset>> x >> rs1;
-            registers[rd] = memory[registers[rs1]/4 + offset/4];
+            temp = memory[registers[rs1]/4 + offset/4];
+            Memory(temp, rd, 0, memory);
         }
         else if (opcode == "sw")
         {
             // sw x5 8(x20)
-            int rs1, offset, rd;
+            int rs1, offset, rd, ab;
             char x;
             iss >> rs1 >> offset>> x >> rd;
-            // cout<<registers[6]<<endl;
-            memory[registers[rd]/4 + offset/4] = registers[rs1];
+            temp = registers[rs1];
+            ab = registers[rd]/4 + offset/4;
+            Memory(temp, ab, 1, memory);
         }
     }
 
-    void execute_branch(const string& opcode, istringstream& iss)
+    void execute_branch(const string& opcode, istringstream& iss, vector<int>& memory)
     {
+        int temp;
         if (opcode == "beq") 
         {
             //beq x5 x6 Label
@@ -222,7 +271,9 @@ private:
                 {
                     if(label==program[i])
                     {
-                        pc = i;
+                        temp = i;
+                        Memory(temp, i, 2, memory);
+                        break;
                     }
                 }
             }
@@ -240,7 +291,9 @@ private:
                 {
                     if(label==program[i])
                     {
-                        pc = i;
+                        temp = i;
+                        Memory(temp, i, 2, memory);
+                        break;
                     }
                 }
             }
@@ -258,7 +311,9 @@ private:
                 {
                     if(label==program[i])
                     {
-                        pc = i;
+                        temp = i;
+                        Memory(temp, i, 2, memory);
+                        break;
                     }
                 }
             }
@@ -276,7 +331,9 @@ private:
                 {
                     if(label==program[i])
                     {
-                        pc = i;
+                        temp = i;
+                        Memory(temp, i, 2, memory);
+                        break;
                     }
                 }
             }
@@ -294,7 +351,9 @@ private:
                 {
                     if(label==program[i])
                     {
-                        pc = i;
+                        temp = i;
+                        Memory(temp, i, 2, memory);
+                        break;
                     }
                 }
             }
@@ -309,28 +368,32 @@ private:
             {
                 if(label==program[i])
                 {
-                    pc = i;
+                    temp = i;
+                    Memory(temp, i, 2, memory);
+                    break;
                 }
             }
-            return;
         }
     }
 
-    void execute_bitwise(const string& opcode, istringstream& iss)
+    void execute_bitwise(const string& opcode, istringstream& iss, vector<int>& memory)
     {
+        int temp;
         if(opcode=="srli")
         {
             //srl x5 x20 1
             int rd, rs1,value;
             iss>> rd >> rs1 >> value;
-            registers[rd] = registers[rs1]>>value;
+            temp = registers[rs1]>>value;
+            Memory(temp, rd, 0, memory);
         }
         else if(opcode=="slli")
         {
             //sll x5 x20 1
             int rd, rs1,value;
             iss>> rd >> rs1 >> value;
-            registers[rd] = registers[rs1]<<value;
+            temp = registers[rs1]<<value;
+            Memory(temp, rd, 0, memory);
         }
         else if(opcode=="slt")
         {
