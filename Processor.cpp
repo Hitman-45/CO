@@ -86,4 +86,12 @@ public:
             return cores[coreIndex].get_clock();
         }
     }
+
+    int getcore_stall(int coreIndex)
+    {
+        if (coreIndex < cores.size()) 
+        {
+            return cores[coreIndex].get_stall();
+        }
+    }
 };

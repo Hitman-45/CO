@@ -14,10 +14,7 @@ public:
     int clock;
 
     // Define pipeline registers
-    int temp_WB;
-    int temp_MEM;
-    int temp_EX;
-    int temp_Dec;
+    int stall;
     bool EX_MEM_valid, MEM_WB_valid;
 
 public:
@@ -27,6 +24,7 @@ public:
         pc = 0;
         instr_retired = 0;
         clock = 0;
+        stall = 0;
 
         // Initialize pipeline registers
         EX_MEM_valid = false;
@@ -56,7 +54,6 @@ public:
         string opcode;
         istringstream iss(line);
         iss >> opcode;
-        clock++;
 
         if(opcode==".data")
         {
@@ -103,29 +100,31 @@ public:
 
     void execute(const string& opcode, istringstream& iss, vector<int>& memory, vector<pair<string, int>>& info)
     {
+
+        string prev = program[pc-1];
+        istringstream iss1(prev);
+        string prev1 = program[pc-2];
+        istringstream iss2(prev1);
+
         if (opcode == "add" || opcode == "addi" || opcode == "sub" || opcode == "li") 
         {
-            clock++;
             // Execute arithmetic/logical instructions
-            execute_arithmetic(opcode, iss, memory);
+            execute_arithmetic(opcode, iss, iss1, iss2, memory);
         }
         else if(opcode == "beq" || opcode == "ble" || opcode == "blt" || opcode == "bgt" || opcode == "bge" || opcode == "j")
         {
-            clock++;
             // Execute branch/jump instructions
-            execute_branch(opcode, iss, memory);
+            execute_branch(opcode, iss, iss1, iss2, memory);
         }
         else if(opcode=="srli" || opcode=="slli" || opcode=="slt")
         {
-            clock++;
             // Execute bitwise manipulation instructions
-            execute_bitwise(opcode, iss, memory);
+            execute_bitwise(opcode, iss, iss1, iss2, memory);
         }
         else if (opcode == "lw" || opcode == "sw" || opcode == "la") 
         {
-            clock++;
             // Execute memory instructions
-            execute_memory(opcode, iss, memory, info);
+            execute_memory(opcode, iss, iss1, iss2, memory, info);
         }
     }
 
@@ -147,7 +146,12 @@ public:
 
     int get_clock()
     {
-        return clock;
+        return clock+stall;
+    }
+
+    int get_stall()
+    {
+        return stall;
     }
 
     void Memory(int temp,int rd, int type, vector<int>& memory)
@@ -169,24 +173,41 @@ public:
 
     void WB(int temp,int rd, int type)
     {
-        if(type==0)
+        if(type==0){
             registers[rd] = temp;
-        else if(type==1)
+        }
+        else if(type==1){
             type = 1;
-        else if(type==2)
+        }
+        else if(type==2){
             pc = temp;
+        }
     }
 
 private:
 
-    void execute_arithmetic(const string& opcode, istringstream& iss, vector<int>& memory) 
+    void execute_arithmetic(const string& opcode, istringstream& iss, istringstream& iss1, istringstream& iss2, vector<int>& memory) 
     {
         int temp;
+        string opcode1;
+        iss1 >> opcode1;
+        string opcode2;
+        iss2 >> opcode2;
         if (opcode == "add") 
         {
             // add x1 x2 x3
             int rd, rs1, rs2;
             iss >> rd >> rs1 >> rs2;
+            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+            {
+                int r1,r2;
+                iss1 >> r1;
+                iss2 >> r2;
+                
+                if(r1 == rs1 || r1 == rs2 || r2 == rs1 || r2 == rs2)
+                    stall += 2;
+
+            }
             temp = registers[rs1] + registers[rs2];
             Memory(temp, rd, 0, memory);
         } 
@@ -195,6 +216,16 @@ private:
             //addi x5 x20 3
             int rd, rs1, imm;
             iss >> rd >> rs1 >> imm;
+            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+            {
+                int r1,r2;
+                iss1 >> r1;
+                iss2 >> r2;
+                
+                if(r1 == rs1 || r2 == rs1 )
+                    stall += 2;
+
+            }
             temp = registers[rs1] + imm;
             Memory(temp, rd, 0, memory);
         }
@@ -203,6 +234,16 @@ private:
             //sub x1 x2 x3
             int rd, rs1, rs2;
             iss >> rd >> rs1 >> rs2;
+            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+            {
+                int r1,r2;
+                iss1 >> r1;
+                iss2 >> r2;
+                
+                if(r1 == rs1 || r1 == rs2 || r2 == rs1 || r2 == rs2)
+                    stall += 2;
+
+            }
             temp = registers[rs1] - registers[rs2];
             Memory(temp, rd, 0, memory);
         }
@@ -216,9 +257,13 @@ private:
         }
     }
 
-    void execute_memory(const string& opcode, istringstream& iss, vector<int>& memory,  vector<pair<string, int>>& info) 
+    void execute_memory(const string& opcode, istringstream& iss, istringstream& iss1, istringstream& iss2, vector<int>& memory,  vector<pair<string, int>>& info) 
     {
         int temp;
+        string opcode1;
+        iss1 >> opcode1;
+        string opcode2;
+        iss2 >> opcode2;
         if(opcode == "la")
         {
             //la x5 label
@@ -228,6 +273,17 @@ private:
             {
                 if(info[i].first == label)
                 {
+                    stall += 2;
+                    if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+                    {
+                        int r1,r2;
+                        iss1 >> r1;
+                        iss2 >> r2;
+                        
+                        if(r1 == rd || r2 == rd)
+                            stall += 2;
+
+                    }
                     temp =(info[i].second)*4;
                     Memory(temp, rd, 0, memory);
                     break;
@@ -240,6 +296,16 @@ private:
             int rd, offset, rs1;
             char x;
             iss >> rd >> offset>> x >> rs1;
+            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+            {
+                int r1,r2;
+                iss1 >> r1;
+                iss2 >> r2;
+                
+                if(r1 == rd || r2 == rd)
+                    stall += 2;
+
+            }
             temp = memory[registers[rs1]/4 + offset/4];
             Memory(temp, rd, 0, memory);
         }
@@ -249,15 +315,30 @@ private:
             int rs1, offset, rd, ab;
             char x;
             iss >> rs1 >> offset>> x >> rd;
+            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+            {
+                int r1,r2;
+                iss1 >> r1;
+                iss2 >> r2;
+                
+                if(r1 == rd || r2 == rd)
+                    stall += 2;
+
+            }
             temp = registers[rs1];
             ab = registers[rd]/4 + offset/4;
             Memory(temp, ab, 1, memory);
         }
     }
 
-    void execute_branch(const string& opcode, istringstream& iss, vector<int>& memory)
+    void execute_branch(const string& opcode, istringstream& iss, istringstream& iss1, istringstream& iss2, vector<int>& memory)
     {
         int temp;
+        string opcode1;
+        iss1 >> opcode1;
+        string opcode2;
+        iss2 >> opcode2;
+        stall += 2;
         if (opcode == "beq") 
         {
             //beq x5 x6 Label
@@ -271,6 +352,22 @@ private:
                 {
                     if(label==program[i])
                     {
+                        if( opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+                        {
+                            int r1,r2;
+                            iss1 >> r1;
+                            iss2 >> r2;
+
+                            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli")
+                            {
+                                if(r1 == rs1 || r1 == rs2 )
+                                    stall += 2;
+                                else if(r2 == rs1 || r2 == rs2)
+                                    stall += 1;
+                            }
+                            else if(r2 == rs1 || r2 == rs2)
+                                    stall += 1;
+                        }
                         temp = i;
                         Memory(temp, i, 2, memory);
                         break;
@@ -291,6 +388,22 @@ private:
                 {
                     if(label==program[i])
                     {
+                        if( opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+                        {
+                            int r1,r2;
+                            iss1 >> r1;
+                            iss2 >> r2;
+
+                            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli")
+                            {
+                                if(r1 == rs1 || r1 == rs2 )
+                                    stall += 2;
+                                else if(r2 == rs1 || r2 == rs2)
+                                    stall += 1;
+                            }
+                            else if(r2 == rs1 || r2 == rs2)
+                                    stall += 1;
+                        }
                         temp = i;
                         Memory(temp, i, 2, memory);
                         break;
@@ -311,6 +424,22 @@ private:
                 {
                     if(label==program[i])
                     {
+                        if( opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+                        {
+                            int r1,r2;
+                            iss1 >> r1;
+                            iss2 >> r2;
+
+                            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli")
+                            {
+                                if(r1 == rs1 || r1 == rs2 )
+                                    stall += 2;
+                                else if(r2 == rs1 || r2 == rs2)
+                                    stall += 1;
+                            }
+                            else if(r2 == rs1 || r2 == rs2)
+                                    stall += 1;
+                        }
                         temp = i;
                         Memory(temp, i, 2, memory);
                         break;
@@ -331,6 +460,22 @@ private:
                 {
                     if(label==program[i])
                     {
+                        if( opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+                        {
+                            int r1,r2;
+                            iss1 >> r1;
+                            iss2 >> r2;
+
+                            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli")
+                            {
+                                if(r1 == rs1 || r1 == rs2 )
+                                    stall += 2;
+                                else if(r2 == rs1 || r2 == rs2)
+                                    stall += 1;
+                            }
+                            else if(r2 == rs1 || r2 == rs2)
+                                    stall += 1;
+                        }
                         temp = i;
                         Memory(temp, i, 2, memory);
                         break;
@@ -352,6 +497,22 @@ private:
                     if(label==program[i])
                     {
                         temp = i;
+                        if( opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+                        {
+                            int r1,r2;
+                            iss1 >> r1;
+                            iss2 >> r2;
+
+                            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli")
+                            {
+                                if(r1 == rs1 || r1 == rs2 )
+                                    stall += 2;
+                                else if(r2 == rs1 || r2 == rs2)
+                                    stall += 1;
+                            }
+                            else if(r2 == rs1 || r2 == rs2)
+                                    stall += 1;
+                        }
                         Memory(temp, i, 2, memory);
                         break;
                     }
@@ -376,14 +537,27 @@ private:
         }
     }
 
-    void execute_bitwise(const string& opcode, istringstream& iss, vector<int>& memory)
+    void execute_bitwise(const string& opcode, istringstream& iss, istringstream& iss1, istringstream& iss2, vector<int>& memory)
     {
         int temp;
+        string opcode1;
+        iss1 >> opcode1;
+        string opcode2;
+        iss2 >> opcode2;
         if(opcode=="srli")
         {
             //srl x5 x20 1
             int rd, rs1,value;
             iss>> rd >> rs1 >> value;
+            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+            {
+                int r1,r2;
+                iss1 >> r1;
+                iss2 >> r2;
+                if(r1 == rs1 || r2 == rs1 )
+                    stall += 2;
+
+            }
             temp = registers[rs1]>>value;
             Memory(temp, rd, 0, memory);
         }
@@ -392,6 +566,15 @@ private:
             //sll x5 x20 1
             int rd, rs1,value;
             iss>> rd >> rs1 >> value;
+            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+            {
+                int r1,r2;
+                iss1 >> r1;
+                iss2 >> r2;
+                if(r1 == rs1 || r2 == rs1 )
+                    stall += 2;
+
+            }
             temp = registers[rs1]<<value;
             Memory(temp, rd, 0, memory);
         }
@@ -400,7 +583,16 @@ private:
             //slt x5 x20 x21
             int rd, rs1, rs2;
             iss>> rd >> rs1 >> rs2;
-            if(rs1<rs2)
+            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+            {
+                int r1,r2;
+                iss1 >> r1;
+                iss2 >> r2;
+                if(r1 == rs1 || r1 == rs2 || r2 == rs1 || r2 == rs2)
+                    stall += 2;
+
+            }
+            if(registers[rs1]<registers[rs2])
             {
                 registers[rd] = 1;
             }

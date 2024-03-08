@@ -55,17 +55,19 @@ int main()
             cout<<x<<" ";
     }
 
-    cout<<endl;
-    for (int i = 0; i < 2; ++i) 
-    {
-        int x = sim.getcore_clock(i);
-        cout<<"Clock Cycles in core-"<<i<<" is: "<<x<<endl;
-    }
-    
+    cout<<endl; 
     for (int i = 0; i < 2; ++i) 
     {
         int x = sim.getcoreInstr_retired(i);
-        cout<<"Instructions-retired in core-"<<i<<" is: "<<x<<endl;
+        int y = sim.getcore_clock(i);
+        float z = (float)x/y;
+        cout<<"IPC in core-"<<i<<" is: "<<z<<endl;
+    }
+
+    for (int i = 0; i < 2; ++i) 
+    {
+        int x = sim.getcore_stall(i);
+        cout<<"stall in core-"<<i<<" is: "<<x<<endl;
     }
 
     return 0;
