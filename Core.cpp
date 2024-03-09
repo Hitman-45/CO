@@ -15,7 +15,7 @@ public:
 
     // Define pipeline registers
     int stall;
-    bool EX_MEM_valid, MEM_WB_valid;
+    bool forwading;
 
 public:
     Core()
@@ -25,10 +25,6 @@ public:
         instr_retired = 0;
         clock = 0;
         stall = 0;
-
-        // Initialize pipeline registers
-        EX_MEM_valid = false;
-        MEM_WB_valid = false;
     }  
 
     void fetch(vector<int> &memory, vector<pair<string, int>> &info) 
@@ -198,14 +194,32 @@ private:
             // add x1 x2 x3
             int rd, rs1, rs2;
             iss >> rd >> rs1 >> rs2;
-            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+            if(forwading)
+            {
+                int r1,r2;
+                iss1 >> r1;
+                iss2 >> r2;
+                if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode2 == "lw")
+                {
+                    if(r1 == rs1 || r1 == rs2 || r2 == rs1 || r2 == rs2)
+                    stall += 1;
+                }
+                else if(opcode1 == "lw")
+                {
+                    if(r1 == rs1 || r1 == rs2)
+                    stall += 2;
+                }
+            }
+            else if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
             {
                 int r1,r2;
                 iss1 >> r1;
                 iss2 >> r2;
                 
-                if(r1 == rs1 || r1 == rs2 || r2 == rs1 || r2 == rs2)
+                if(r1 == rs1 || r1 == rs2) 
                     stall += 2;
+                else if(r2 == rs1 || r2 == rs2)
+                    stall += 1;
 
             }
             temp = registers[rs1] + registers[rs2];
@@ -216,14 +230,32 @@ private:
             //addi x5 x20 3
             int rd, rs1, imm;
             iss >> rd >> rs1 >> imm;
-            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+            if(forwading)
+            {
+                int r1,r2;
+                iss1 >> r1;
+                iss2 >> r2;
+                if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode2 == "lw")
+                {
+                    if(r1 == rs1 ||  r2 == rs1)
+                    stall += 1;
+                }
+                else if(opcode1 == "lw")
+                {
+                    if(r1 == rs1)
+                    stall += 2;
+                }
+            }
+            else if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
             {
                 int r1,r2;
                 iss1 >> r1;
                 iss2 >> r2;
                 
-                if(r1 == rs1 || r2 == rs1 )
+                if(r1 == rs1) 
                     stall += 2;
+                else if(r2 == rs1)
+                    stall += 1;
 
             }
             temp = registers[rs1] + imm;
@@ -234,14 +266,32 @@ private:
             //sub x1 x2 x3
             int rd, rs1, rs2;
             iss >> rd >> rs1 >> rs2;
-            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+            if(forwading)
+            {
+                int r1,r2;
+                iss1 >> r1;
+                iss2 >> r2;
+                if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode2 == "lw" )
+                {
+                    if(r1 == rs1 || r1 == rs2 || r2 == rs1 || r2 == rs2)
+                    stall += 1;
+                }
+                else if(opcode1 == "lw" )
+                {
+                    if(r1 == rs1 || r1 == rs2)
+                    stall += 2;
+                }
+            }
+            else if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
             {
                 int r1,r2;
                 iss1 >> r1;
                 iss2 >> r2;
                 
-                if(r1 == rs1 || r1 == rs2 || r2 == rs1 || r2 == rs2)
+                if(r1 == rs1 || r1 == rs2) 
                     stall += 2;
+                else if(r2 == rs1 || r2 == rs2)
+                    stall += 1;
 
             }
             temp = registers[rs1] - registers[rs2];
@@ -274,15 +324,32 @@ private:
                 if(info[i].first == label)
                 {
                     stall += 2;
-                    if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+                    if(forwading)
+                    {
+                        int r1,r2;
+                        iss1 >> r1;
+                        iss2 >> r2;
+                        if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode2 == "lw" )
+                        {
+                            if(r1 == rd || r2 == rd)
+                            stall += 1;
+                        }
+                        else if(opcode1 == "lw")
+                        {
+                            if(r1 == rd)
+                            stall += 2;
+                        }
+                    }
+                    else if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "srli" || opcode2 == "slli")
                     {
                         int r1,r2;
                         iss1 >> r1;
                         iss2 >> r2;
                         
-                        if(r1 == rd || r2 == rd)
+                        if(r1 == rd)
                             stall += 2;
-
+                        else if(r2 == rd)
+                            stall += 1;
                     }
                     temp =(info[i].second)*4;
                     Memory(temp, rd, 0, memory);
@@ -296,15 +363,32 @@ private:
             int rd, offset, rs1;
             char x;
             iss >> rd >> offset>> x >> rs1;
-            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+            if(forwading)
+            {
+                int r1,r2;
+                iss1 >> r1;
+                iss2 >> r2;
+                if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode2 == "lw" )
+                {
+                    if(r1 == rd || r2 == rd)
+                    stall += 1;
+                }
+                else if(opcode1 == "lw")
+                {
+                    if(r1 == rd)
+                    stall += 2;
+                }
+            }
+            else if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "srli" || opcode2 == "slli")
             {
                 int r1,r2;
                 iss1 >> r1;
                 iss2 >> r2;
                 
-                if(r1 == rd || r2 == rd)
+                if(r1 == rd)
                     stall += 2;
-
+                else if(r2 == rd)
+                    stall += 1;
             }
             temp = memory[registers[rs1]/4 + offset/4];
             Memory(temp, rd, 0, memory);
@@ -315,15 +399,32 @@ private:
             int rs1, offset, rd, ab;
             char x;
             iss >> rs1 >> offset>> x >> rd;
-            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+            if(forwading)
+            {
+                int r1,r2;
+                iss1 >> r1;
+                iss2 >> r2;
+                if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode2 == "lw" )
+                {
+                    if(r1 == rd || r2 == rd)
+                    stall += 1;
+                }
+                else if(opcode1 == "lw")
+                {
+                    if(r1 == rd)
+                    stall += 2;
+                }
+            }
+            else if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "srli" || opcode2 == "slli")
             {
                 int r1,r2;
                 iss1 >> r1;
                 iss2 >> r2;
                 
-                if(r1 == rd || r2 == rd)
+                if(r1 == rd)
                     stall += 2;
-
+                else if(r2 == rd)
+                    stall += 1;
             }
             temp = registers[rs1];
             ab = registers[rd]/4 + offset/4;
@@ -338,7 +439,9 @@ private:
         iss1 >> opcode1;
         string opcode2;
         iss2 >> opcode2;
-        stall += 2;
+        if(opcode != "j")
+            stall += 2;
+
         if (opcode == "beq") 
         {
             //beq x5 x6 Label
@@ -352,21 +455,32 @@ private:
                 {
                     if(label==program[i])
                     {
-                        if( opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+                        if(forwading)
+                        {
+                            int r1,r2;
+                            iss1 >> r1;
+                            iss2 >> r2;
+                            if( opcode2 == "lw")
+                            {
+                                if( r2 == rs1 || r2 == rs2)
+                                stall += 1;
+                            }
+                            else if(opcode1 == "lw")
+                            {
+                                if(r1 == rs1 || r1 == rs2)
+                                stall += 2;
+                            }
+                        }
+                        else if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "srli" || opcode2 == "slli")
                         {
                             int r1,r2;
                             iss1 >> r1;
                             iss2 >> r2;
 
-                            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli")
-                            {
-                                if(r1 == rs1 || r1 == rs2 )
-                                    stall += 2;
-                                else if(r2 == rs1 || r2 == rs2)
-                                    stall += 1;
-                            }
+                            if(r1 == rs1 || r1 == rs2 )
+                                stall += 2;
                             else if(r2 == rs1 || r2 == rs2)
-                                    stall += 1;
+                                stall += 1;
                         }
                         temp = i;
                         Memory(temp, i, 2, memory);
@@ -388,22 +502,34 @@ private:
                 {
                     if(label==program[i])
                     {
-                        if( opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+                        if(forwading)
+                        {
+                            int r1,r2;
+                            iss1 >> r1;
+                            iss2 >> r2;
+                            if( opcode2 == "lw")
+                            {
+                                if(r2 == rs1 || r2 == rs2)
+                                stall += 1;
+                            }
+                            else if(opcode1 == "lw")
+                            {
+                                if(r1 == rs1 || r1 == rs2)
+                                stall += 2;
+                            }
+                        }
+                        else if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "srli" || opcode2 == "slli")
                         {
                             int r1,r2;
                             iss1 >> r1;
                             iss2 >> r2;
 
-                            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli")
-                            {
-                                if(r1 == rs1 || r1 == rs2 )
-                                    stall += 2;
-                                else if(r2 == rs1 || r2 == rs2)
-                                    stall += 1;
-                            }
+                            if(r1 == rs1 || r1 == rs2 )
+                                stall += 2;
                             else if(r2 == rs1 || r2 == rs2)
-                                    stall += 1;
+                                stall += 1;
                         }
+
                         temp = i;
                         Memory(temp, i, 2, memory);
                         break;
@@ -424,21 +550,32 @@ private:
                 {
                     if(label==program[i])
                     {
-                        if( opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+                        if(forwading)
+                        {
+                            int r1,r2;
+                            iss1 >> r1;
+                            iss2 >> r2;
+                            if(opcode2 == "lw")
+                            {
+                                if(r2 == rs1 || r2 == rs2)
+                                stall += 1;
+                            }
+                            else if(opcode1 == "lw")
+                            {
+                                if(r1 == rs1 || r1 == rs2)
+                                stall += 2;
+                            }
+                        }
+                        else if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "srli" || opcode2 == "slli")
                         {
                             int r1,r2;
                             iss1 >> r1;
                             iss2 >> r2;
 
-                            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli")
-                            {
-                                if(r1 == rs1 || r1 == rs2 )
-                                    stall += 2;
-                                else if(r2 == rs1 || r2 == rs2)
-                                    stall += 1;
-                            }
+                            if(r1 == rs1 || r1 == rs2 )
+                                stall += 2;
                             else if(r2 == rs1 || r2 == rs2)
-                                    stall += 1;
+                                stall += 1;
                         }
                         temp = i;
                         Memory(temp, i, 2, memory);
@@ -460,21 +597,32 @@ private:
                 {
                     if(label==program[i])
                     {
-                        if( opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+                        if(forwading)
+                        {
+                            int r1,r2;
+                            iss1 >> r1;
+                            iss2 >> r2;
+                            if( opcode2 == "lw")
+                            {
+                                if(r1 == rs1 || r1 == rs2 || r2 == rs1 || r2 == rs2)
+                                stall += 1;
+                            }
+                            else if(opcode1 == "lw")
+                            {
+                                if(r1 == rs1 || r1 == rs2)
+                                stall += 2;
+                            }
+                        }
+                        else if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "srli" || opcode2 == "slli")
                         {
                             int r1,r2;
                             iss1 >> r1;
                             iss2 >> r2;
 
-                            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli")
-                            {
-                                if(r1 == rs1 || r1 == rs2 )
-                                    stall += 2;
-                                else if(r2 == rs1 || r2 == rs2)
-                                    stall += 1;
-                            }
+                            if(r1 == rs1 || r1 == rs2 )
+                                stall += 2;
                             else if(r2 == rs1 || r2 == rs2)
-                                    stall += 1;
+                                stall += 1;
                         }
                         temp = i;
                         Memory(temp, i, 2, memory);
@@ -496,23 +644,34 @@ private:
                 {
                     if(label==program[i])
                     {
-                        temp = i;
-                        if( opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+                        if(forwading)
+                        {
+                            int r1,r2;
+                            iss1 >> r1;
+                            iss2 >> r2;
+                            if( opcode2 == "lw")
+                            {
+                                if(r1 == rs1 || r1 == rs2 || r2 == rs1 || r2 == rs2)
+                                stall += 1;
+                            }
+                            else if(opcode1 == "lw")
+                            {
+                                if(r1 == rs1 || r1 == rs2)
+                                stall += 2;
+                            }
+                        }
+                        else if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "srli" || opcode2 == "slli")
                         {
                             int r1,r2;
                             iss1 >> r1;
                             iss2 >> r2;
 
-                            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli")
-                            {
-                                if(r1 == rs1 || r1 == rs2 )
-                                    stall += 2;
-                                else if(r2 == rs1 || r2 == rs2)
-                                    stall += 1;
-                            }
+                            if(r1 == rs1 || r1 == rs2 )
+                                stall += 2;
                             else if(r2 == rs1 || r2 == rs2)
-                                    stall += 1;
+                                stall += 1;
                         }
+                        temp = i;
                         Memory(temp, i, 2, memory);
                         break;
                     }
@@ -549,13 +708,31 @@ private:
             //srl x5 x20 1
             int rd, rs1,value;
             iss>> rd >> rs1 >> value;
-            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+            if(forwading)
             {
                 int r1,r2;
                 iss1 >> r1;
                 iss2 >> r2;
-                if(r1 == rs1 || r2 == rs1 )
+                if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode2 == "lw" || opcode2 == "sw")
+                {
+                    if(r1 == rs1 || r2 == rs1 )
+                    stall += 1;
+                }
+                else if(opcode1 == "lw" || opcode1 == "sw")
+                {
+                    if(r1 == rs1)
                     stall += 2;
+                }
+            }
+            else if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+            {
+                int r1,r2;
+                iss1 >> r1;
+                iss2 >> r2;
+                if(r1 == rs1)
+                    stall += 2;
+                else if(r2 == rs1)
+                    stall += 1;
 
             }
             temp = registers[rs1]>>value;
@@ -566,13 +743,31 @@ private:
             //sll x5 x20 1
             int rd, rs1,value;
             iss>> rd >> rs1 >> value;
-            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+            if(forwading)
             {
                 int r1,r2;
                 iss1 >> r1;
                 iss2 >> r2;
-                if(r1 == rs1 || r2 == rs1 )
+                if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode2 == "lw" || opcode2 == "sw")
+                {
+                    if(r1 == rs1 || r2 == rs1 )
+                    stall += 1;
+                }
+                else if(opcode1 == "lw" || opcode1 == "sw")
+                {
+                    if(r1 == rs1)
                     stall += 2;
+                }
+            }
+            else if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+            {
+                int r1,r2;
+                iss1 >> r1;
+                iss2 >> r2;
+                if(r1 == rs1)
+                    stall += 2;
+                else if(r2 == rs1)
+                    stall += 1;
 
             }
             temp = registers[rs1]<<value;
@@ -583,13 +778,31 @@ private:
             //slt x5 x20 x21
             int rd, rs1, rs2;
             iss>> rd >> rs1 >> rs2;
-            if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+            if(forwading)
             {
                 int r1,r2;
                 iss1 >> r1;
                 iss2 >> r2;
-                if(r1 == rs1 || r1 == rs2 || r2 == rs1 || r2 == rs2)
+                if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode2 == "lw" || opcode2 == "sw")
+                {
+                    if(r1 == rs1 || r1 == rs2 || r2 == rs1 || r2 == rs2)
+                    stall += 1;
+                }
+                else if(opcode1 == "lw" || opcode1 == "sw")
+                {
+                    if(r1 == rs1 || r1 == rs2)
                     stall += 2;
+                }
+            }
+            else if(opcode1 == "add" || opcode1 == "addi" || opcode1 == "sub" || opcode1 == "li" || opcode1 == "la" || opcode1 == "lw" || opcode1 == "sw" || opcode1 == "srli" || opcode1 == "slli" || opcode2 == "add" || opcode2 == "addi" || opcode2 == "sub" || opcode2 == "li" || opcode2 == "la" || opcode2 == "lw" || opcode2 == "sw" || opcode2 == "srli" || opcode2 == "slli")
+            {
+                int r1,r2;
+                iss1 >> r1;
+                iss2 >> r2;
+                if(r1 == rs1 || r1 == rs2)
+                    stall += 2;
+                else if(r2 == rs1 || r2 == rs2)
+                    stall += 1;
 
             }
             if(registers[rs1]<registers[rs2])

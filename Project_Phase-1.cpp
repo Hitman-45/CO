@@ -34,6 +34,12 @@ int main()
     }
 
     sim.setCoreProgram(1, instructions1);
+
+    bool fwd;
+    cout<<"Enter 1 for forwading and 0 for w/o forwading: ";
+    cin>>fwd;
+
+    sim.setcore_forwading(fwd);
     
     sim.run();
 
@@ -55,20 +61,18 @@ int main()
             cout<<x<<" ";
     }
 
-    cout<<endl; 
+    cout<<endl<<"*********************************************"<<endl; 
     for (int i = 0; i < 2; ++i) 
     {
         int x = sim.getcoreInstr_retired(i);
         int y = sim.getcore_clock(i);
         float z = (float)x/y;
+        int x1 = sim.getcore_stall(i);
+        cout<<"No. of clock in core-"<<i<<" is: "<<y<<endl;
         cout<<"IPC in core-"<<i<<" is: "<<z<<endl;
+        cout<<"stall in core-"<<i<<" is: "<<x1<<endl;
+        cout<<"*********************************************"<<endl;
     }
-
-    for (int i = 0; i < 2; ++i) 
-    {
-        int x = sim.getcore_stall(i);
-        cout<<"stall in core-"<<i<<" is: "<<x<<endl;
-    }
-
+    
     return 0;
 }

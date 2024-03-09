@@ -94,4 +94,12 @@ public:
             return cores[coreIndex].get_stall();
         }
     }
+
+    void setcore_forwading(bool fwd)
+    {
+        for(int i=0; i<cores.size(); i++)
+        {
+            cores[i].forwading = fwd;
+        }
+    }
 };
