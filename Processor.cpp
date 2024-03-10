@@ -102,4 +102,16 @@ public:
             cores[i].forwading = fwd;
         }
     }
+
+    float Predict_acc(int coreIndex)
+    {
+        if (coreIndex < cores.size()) 
+        {
+            int x = cores[coreIndex].get_true_branch();
+            int y = cores[coreIndex].get_false_branch();
+            int x1 = x+y;
+            float z = (float)x/x1;
+            return z;
+        }
+    }
 };

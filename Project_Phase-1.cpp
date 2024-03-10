@@ -61,17 +61,19 @@ int main()
             cout<<x<<" ";
     }
 
-    cout<<endl<<"*********************************************"<<endl; 
+    cout<<endl<<"********************************************************"<<endl; 
     for (int i = 0; i < 2; ++i) 
     {
         int x = sim.getcoreInstr_retired(i);
         int y = sim.getcore_clock(i);
         float z = (float)x/y;
         int x1 = sim.getcore_stall(i);
+        float z1 = sim.Predict_acc(i);
         cout<<"No. of clock in core-"<<i<<" is: "<<y<<endl;
         cout<<"IPC in core-"<<i<<" is: "<<z<<endl;
         cout<<"stall in core-"<<i<<" is: "<<x1<<endl;
-        cout<<"*********************************************"<<endl;
+        cout<<"Branch prediction accuracy in core-"<<i<<" is: "<<z1*100<<" %"<<endl;
+        cout<<"********************************************************"<<endl;
     }
     
     return 0;
