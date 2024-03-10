@@ -3,8 +3,21 @@
 #### CS22B005 Ambaliya Shankheshkumar M
 #### CS22B016 Chatse Siddhant M
 ## About
-This C++ program simulates a basic RISC-V-like processor architecture. It includes a simple processor class (Processor) and a core class (Core) that executes RISC-V-like instructions. The simulation is designed to mimic the behavior of a RISC-V processor using the Ripes simulator.
 
+Date:- 7-March-2024
+Members : Shankhesh and siddhant
+Decisions : we will separate out the memory and write back stage from the execution function and we'll calculate the stall and IPC for without data forwading stages.Here we face so many difficulties while calculating and manipulating stalls. from here onwards wherever we need to change anything in stall we will change functions accordingly.
+
+Date:- 5-March-2024
+Members : Shankhesh and siddhant
+Decisions : we separated excution stage also. we will calculate retired instructions.Here we saperated instructions into four parts arithmetic, memory, branch and bitwise instruction on that behave it'll execute the instructions.
+
+Date:- 2-March-2024
+Members : Shankhesh and siddhant
+Decisions : we have decide to seprate 5 stages of pipeline in next 3 days in which we will separate it from entire function of five stages. But starting was very hard so just IF and decode took 2 days in seprating.
+
+---
+This C++ program simulates a basic RISC-V-like processor architecture. It includes a simple processor class (Processor) and a core class (Core) that executes RISC-V-like instructions. The simulation is designed to mimic the behavior of a RISC-V processor using the Ripes simulator.
 ---
 ## Code Overveiw
 The C++ code consists of two important classes: Core and Processor and a main function. This program simulates a processor with multiple cores executing a program represented as a sequence of instructions. The Processor class manages the cores and memory, while the Core class represents individual cores responsible for executing instructions.
@@ -61,39 +74,6 @@ The C++ code simulates a processor executing a series of instructions. Each inst
 ## Note
 - Due to simplify code we are not writing x before any register and if you write x before register it won't work as per our simulator design.
 ---
-## Example
-- An example program is provided in the main function of the code. It sets up a single-core processor, loads a program into the core, and runs the simulation. The program performs a simple loop with arithmetic and shifting operations.
-- First of all we just make base code to check wheather every instructions that we made are working properly or not. It was mainly checking branch instruction and jump instructions for given base code. At the end it was working properly so our base was perfect at that time now after that we tried to manipulation of memory to work code properly.
-```assembly=
-Processor sim(1);
-sim.setCoreProgram(0, {
-    .data
-    .text
-    addi 4 0 0
-    addi 5 0 8
-    addi 1 0 20
-    loop:
-    beq 4 5 exit
-    addi 1 1 1
-    addi 2 1 3
-    add 3 1 2
-    addi 4 4 1
-    j loop
-    exit:
-    srl 5 5 1
-    sll 4 4 1
-});
-sim.run();
-for (int i = 0; i < 1; ++i) {
-    const vector<int>& regs = sim.getCoreRegisters(i);
-    for (int reg : regs) {
-        cout << reg << " ";
-    }
-    cout << endl;
-}
-```
-
-This example sets up a single-core processor simulation, loads a program into the core, runs the simulation, and then prints the final state of the registers.The final output represents the values of the registers after executing the program. The output will consist of the values of registers x0 to x31 after executing the provided program.
 
 ---
 ## Learnings
