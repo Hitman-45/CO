@@ -2,7 +2,7 @@
 ## Team :- Wushangclan
 #### CS22B005 Ambaliya Shankheshkumar M
 #### CS22B016 Chatse Siddhant M
-## About
+---
 
 Date:- 9-March-2024
 Members : Shankhesh and siddhant
@@ -24,10 +24,9 @@ Decisions : we separated excution stage also. we will calculate retired instruct
 Date:- 2-March-2024
 Members : Shankhesh and siddhant
 Decisions : we have decide to seprate 5 stages of pipeline in next 3 days in which we will separate it from entire function of five stages. But starting was very hard so just IF and decode took 2 days in seprating.
-
 ---
-This C++ program simulates a basic RISC-V-like processor architecture. It includes a simple processor class (Processor) and a core class (Core) that executes RISC-V-like instructions. The simulation is designed to mimic the behavior of a RISC-V processor using the Ripes simulator.
----
+## About
+- This C++ program simulates a basic RISC-V-like processor architecture. It includes a simple processor class (Processor) and a core class (Core) that executes RISC-V-like instructions. The simulation is designed to mimic the behavior of a RISC-V processor using the Ripes simulator.
 ## Code Overveiw
 The C++ code consists of two important classes: Core and Processor and a main function. This program simulates a processor with multiple cores executing a program represented as a sequence of instructions. The Processor class manages the cores and memory, while the Core class represents individual cores responsible for executing instructions.
 - #### Core Class-
