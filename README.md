@@ -7,7 +7,7 @@
 Date:- 9-March-2024
 Members : Shankhesh and siddhant
 Decisions : We decided to make static prediction function for the branch instructions. After that we'll calculate prediction accuracy.
-After that whatever minor things will be there we'll change it.
+After that whatever minor things will be there we'll change it. According to our logic we are able to finish it as per given information.
 
 Date:- 8-March-2024
 Members : Shankhesh and siddhant
@@ -24,7 +24,7 @@ Decisions : we separated excution stage also. we will calculate retired instruct
 Date:- 2-March-2024
 Members : Shankhesh and siddhant
 Decisions : we have decide to seprate 5 stages of pipeline in next 3 days in which we will separate it from entire function of five stages. But starting was very hard so just IF and decode took 2 days in seprating.
----
+
 ## About
 - This C++ program simulates a basic RISC-V-like processor architecture. It includes a simple processor class (Processor) and a core class (Core) that executes RISC-V-like instructions. The simulation is designed to mimic the behavior of a RISC-V processor using the Ripes simulator.
 ## Code Overveiw
