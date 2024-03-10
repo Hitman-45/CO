@@ -201,6 +201,11 @@ public:
             predict = 0;
         else
             predict = 1;
+
+        if(!forwading)
+        {
+            stall += 1;
+        }
     }
 
 private:
