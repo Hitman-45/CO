@@ -4,6 +4,15 @@
 #### CS22B016 Chatse Siddhant M
 ## About
 
+Date:- 9-March-2024
+Members : Shankhesh and siddhant
+Decisions : We decided to make static prediction function for the branch instructions. After that we'll calculate prediction accuracy.
+After that whatever minor things will be there we'll change it.
+
+Date:- 8-March-2024
+Members : Shankhesh and siddhant
+Decisions : Pipeling with data forwarding and without data forwarding and decided to give option to user whether he wants pipelining or not. According to it we'll calculate the IPC and stalls.
+
 Date:- 7-March-2024
 Members : Shankhesh and siddhant
 Decisions : we will separate out the memory and write back stage from the execution function and we'll calculate the stall and IPC for without data forwading stages.Here we face so many difficulties while calculating and manipulating stalls. from here onwards wherever we need to change anything in stall we will change functions accordingly.
