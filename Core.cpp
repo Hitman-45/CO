@@ -32,8 +32,9 @@ public:
         incorrect_pred = 0;
     }  
 
-    void fetch(vector<int> &memory, vector<pair<string, int>> &info) 
+    void fetch(vector<int> &memory, vector<pair<string, int>> &info, int x) 
     {
+        pc = x;
         if (pc > program.size())
             return;
 

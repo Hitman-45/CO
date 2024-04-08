@@ -3,7 +3,7 @@
 
 int main() 
 {
-    Processor sim(2);
+    Processor sim(2,1024,8);
 
     // sim.getCore(0).getRegisters()[16] = 0x10000000;
     
@@ -75,6 +75,8 @@ int main()
         cout<<"Branch prediction accuracy in core-"<<i<<" is: "<<z1*100<<" %"<<endl;
         cout<<"********************************************************"<<endl;
     }
+
+    sim.print_hit_rate();
     
     return 0;
 }

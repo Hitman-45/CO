@@ -15,6 +15,8 @@ class CacheSimulator
     unsigned int cacheSize;
     unsigned int blockSize;
     unsigned int numBlocks;
+    int hit;
+    int accesses;
 
     pair<uint64_t, uint64_t> splitAddress(uint64_t address) 
     {
@@ -28,7 +30,9 @@ class CacheSimulator
 
   public:
     CacheSimulator(unsigned int _cacheSize, unsigned int _blockSize): cacheSize(_cacheSize), blockSize(_blockSize) 
-    {    
+    { 
+        hit = 0;
+        accesses = 0;   
         if(cacheSize % blockSize == 0);
         {
             numBlocks = cacheSize / blockSize;
@@ -40,20 +44,25 @@ class CacheSimulator
         }
     }
 
-    bool access (uint64_t address) {
+    void access (uint64_t address) {
       // split the address: |---------tag --------------| --index---| --offset---|
       auto a = splitAddress(address);
       uint64_t index = a.second;
       uint64_t tag = a.first;
-
+      accesses++;
       if (cache[index].tag == tag && cache[index].valid == true) {
-        return true;
+        hit++;
       }
       else {
         cache[index].tag = tag;
         cache[index].valid = true;
-        return false;
       }
+    }
+
+    double hit_rate()
+    {
+      double x = (double)hit / accesses;
+      return x;
     }
 };
 

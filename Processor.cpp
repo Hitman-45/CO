@@ -1,4 +1,5 @@
 #include "Core.cpp"
+#include "Cache.cpp"
 
 class Processor 
 {
@@ -7,9 +8,10 @@ private:
     vector<pair<string, int>> info1;
     vector<pair<string, int>> info2;
     vector<Core> cores;
+    CacheSimulator cache;
 
 public:
-    Processor(int numCores)
+    Processor(int numCores, int x, int y): cache(x,y)
     {
         cores.resize(numCores);
     }
@@ -30,9 +32,17 @@ public:
             for (int i = 0; cores[j].pc < cores[j].program.size(); ++i) 
             {
                 if(j==0)
-                    cores[j].fetch(memory, info1);
+                {
+                    uint64_t xyz = reinterpret_cast<uint64_t>(&cores[j].program[cores[j].pc]);
+                    cache.access(xyz);
+                    cores[j].fetch(memory, info1,cores[j].pc);
+                }
                 if(j==1)
-                    cores[j].fetch(memory, info2);
+                {
+                    uint64_t xyz = reinterpret_cast<uint64_t>(&cores[j].program[cores[j].pc]);
+                    cache.access(xyz);
+                    cores[j].fetch(memory, info2,cores[j].pc);
+                }
             }
         }
     }
@@ -113,5 +123,10 @@ public:
             float z = (float)x/x1;
             return z;
         }
+    }
+
+    void print_hit_rate()
+    {
+        cout<<"Hit-Rate for the Cache: "<<cache.hit_rate()<<endl;
     }
 };
