@@ -8,10 +8,10 @@ private:
     vector<pair<string, int>> info1;
     vector<pair<string, int>> info2;
     vector<Core> cores;
-    CacheSimulator cache;
+    CacheSimulator cac;
 
 public:
-    Processor(int numCores, int x, int y): cache(x,y)
+    Processor(int numCores, int x, int y, int z): cac(x,y,z)
     {
         cores.resize(numCores);
     }
@@ -33,14 +33,14 @@ public:
             {
                 if(j==0)
                 {
-                    uint64_t xyz = reinterpret_cast<uint64_t>(&cores[j].program[cores[j].pc]);
-                    cache.access(xyz);
+                    int* xyz = reinterpret_cast<int*>(&cores[j].program[cores[j].pc]);
+                    cac.access(*xyz);
                     cores[j].fetch(memory, info1,cores[j].pc);
                 }
                 if(j==1)
                 {
-                    uint64_t xyz = reinterpret_cast<uint64_t>(&cores[j].program[cores[j].pc]);
-                    cache.access(xyz);
+                    int* xyz = reinterpret_cast<int*>(&cores[j].program[cores[j].pc]);
+                    cac.access(*xyz);
                     cores[j].fetch(memory, info2,cores[j].pc);
                 }
             }
@@ -127,6 +127,6 @@ public:
 
     void print_hit_rate()
     {
-        cout<<"Hit-Rate for the Cache: "<<cache.hit_rate()<<endl;
+        cout<<"Hit-Rate for the Cache: "<<cac.hit_rate()<<endl;
     }
 };

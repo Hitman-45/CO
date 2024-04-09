@@ -1,82 +1,103 @@
 #include <iostream>
 #include <vector>
+#include <cmath>
 #include <bits/stdc++.h> 
 using namespace std;
-struct CacheBlock 
-{
-  uint64_t tag;
-  bool valid;
+
+struct CacheBlock {
+    bool valid;
+    int tag;
+    vector<int> data;
+    int accessTime; // For LRU and MRU
 };
 
 class CacheSimulator 
 {
-  private:
-    vector<CacheBlock> cache;
-    unsigned int cacheSize;
-    unsigned int blockSize;
-    unsigned int numBlocks;
-    int hit;
-    int accesses;
+private:
+    int cacheSize;
+    int blockSize;
+    int associativity;
+    bool replacement_policy;
+    int memoryAccess;
+    int miss,hit;
+    int numSets;
+    
+    vector<vector<CacheBlock>> cache;
 
-    pair<uint64_t, uint64_t> splitAddress(uint64_t address) 
+public:
+    CacheSimulator(int size, int bSize, int assoc)
     {
-      // variable address if for byte
-      int num_bits_offset = log2(blockSize);
-      address = address >> num_bits_offset;
-      uint64_t index = address & ((1 << numBlocks) - 1);
-      uint64_t tag = address >> (int)log2(numBlocks);
-      return make_pair(tag, index);
+        cacheSize = size;
+        blockSize = bSize;
+        associativity = assoc;
+        numSets = cacheSize / (blockSize * associativity);
+        memoryAccess = 0;
+        miss = 0; hit = 0;
+        replacement_policy = true;//for LRU and false for MRU
+        cache.resize(numSets, vector<CacheBlock>(associativity, {false, -1, vector<int>(blockSize, 0), 0}));
     }
 
-  public:
-    CacheSimulator(unsigned int _cacheSize, unsigned int _blockSize): cacheSize(_cacheSize), blockSize(_blockSize) 
-    { 
-        hit = 0;
-        accesses = 0;   
-        if(cacheSize % blockSize == 0);
-        {
-            numBlocks = cacheSize / blockSize;
-            cache.resize(numBlocks);
+    // Access cache to read/write data
+    void access(int address) 
+    {
+        int setIndex = (address / blockSize) % numSets;
+        int tag = address / (blockSize * numSets);
+        memoryAccess++;
+
+        // Search for the block in the cache
+        for (int i = 0; i < associativity; ++i) {
+            if (cache[setIndex][i].valid && cache[setIndex][i].tag == tag) 
+            {
+                // Cache hit
+                cache[setIndex][i].accessTime = memoryAccess; // Update access time
+                hit++;
+                return;
+            }
         }
-        for (auto b : cache) 
-        {
-            b.valid = false;
-        }
+        // Cache miss
+        insertBlock(address);
+        miss++;
+        return;
     }
 
-    void access (uint64_t address) {
-      // split the address: |---------tag --------------| --index---| --offset---|
-      auto a = splitAddress(address);
-      uint64_t index = a.second;
-      uint64_t tag = a.first;
-      accesses++;
-      if (cache[index].tag == tag && cache[index].valid == true) {
-        hit++;
-      }
-      else {
-        cache[index].tag = tag;
-        cache[index].valid = true;
-      }
+    // Insert block into cache
+    void insertBlock(int address) 
+    {
+        int setIndex = (address / blockSize) % numSets;
+        int tag = address / (blockSize * numSets);
+
+        // Find an empty slot or evict a block based on a replacement policy
+        int emptySlot = -1;
+        for (int i = 0; i < associativity; ++i) 
+        {
+            if (!cache[setIndex][i].valid) 
+            {
+                emptySlot = i;
+                break;
+            }
+        }
+
+        if (emptySlot != -1) 
+        {
+            // Found an empty slot
+            cache[setIndex][emptySlot].valid = true;
+            cache[setIndex][emptySlot].tag = tag;
+            cache[setIndex][emptySlot].accessTime = memoryAccess; // Update access time
+        } 
+        else 
+        {
+            //replacement policy
+        }
     }
 
     double hit_rate()
     {
-      double x = (double)hit / accesses;
+      double x = (double)hit / memoryAccess;
       return x;
     }
+    
+    int misses()
+    {
+        return miss;
+    }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
