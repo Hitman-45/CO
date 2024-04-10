@@ -4,6 +4,20 @@
 #### CS22B016 Chatse Siddhant M
 ---
 
+Date:- 9-April-2024
+Members : Shankhesh 
+Decisions : Now previous design is working properly so i'll just add replacement policy in it. (I entered LRU and MRU replacement policy). That's how i completed my project phase three.
+
+Date:- 8-April-2024
+Members : Shankhesh 
+Decisions : Now as per previous design code is showing segmantation fault so i will redesign it. Now i decided to make cache class withourt replacement policy. I also made the function to calculate hit rate and number of misses.
+
+Date:- 5-April-2024
+Members : Shankhesh 
+Decisions : I decided to make cache class design as sir taught in the lab. But i've to design it as according to my code. So i will make cache class as per my code.
+
+From Here onwards My partner (Siddhant) dropped project so I'll do it alone from here.
+
 Date:- 9-March-2024
 Members : Shankhesh and siddhant
 Decisions : We decided to make static prediction function for the branch instructions. After that we'll calculate prediction accuracy.
