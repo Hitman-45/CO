@@ -3,7 +3,8 @@
 
 int main() 
 {
-    Processor sim(2,512, 8, 8);
+    Processor sim(2,64, 8, 8);
+    
 
     // sim.getCore(0).getRegisters()[16] = 0x10000000;
     

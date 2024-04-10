@@ -127,6 +127,6 @@ public:
 
     void print_hit_rate()
     {
-        cout<<"Hit-Rate for the Cache: "<<cac.hit_rate()<<endl;
+        cout<<"Hit-Rate for the Cache(Between 0 to 1): "<<cac.hit_rate()<<endl;
     }
 };

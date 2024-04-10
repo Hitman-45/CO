@@ -87,6 +87,35 @@ public:
         else 
         {
             //replacement policy
+            int replaceIndex = -1;
+            if (replacement_policy) 
+            {
+                // Find the least recently used block
+                int minAccessTime = numeric_limits<int>::max();
+                for (int i = 0; i < associativity; ++i) {
+                    if (cache[setIndex][i].accessTime < minAccessTime) {
+                        minAccessTime = cache[setIndex][i].accessTime;
+                        replaceIndex = i;
+                    }
+                }
+            } 
+            else 
+            {
+                // Find the most recently used block
+                int maxAccessTime = numeric_limits<int>::min();
+                for (int i = 0; i < associativity; ++i) {
+                    if (cache[setIndex][i].accessTime > maxAccessTime) {
+                        maxAccessTime = cache[setIndex][i].accessTime;
+                        replaceIndex = i;
+                    }
+                }
+            }
+
+            // Evict the block based on the replacement policy (LRU or MRU)
+            cache[setIndex][replaceIndex].valid = true;
+            cache[setIndex][replaceIndex].tag = tag;
+            cache[setIndex][replaceIndex].accessTime = memoryAccess; // Update access time
+
         }
     }
 
