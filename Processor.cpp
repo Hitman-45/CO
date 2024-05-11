@@ -9,9 +9,10 @@ private:
     vector<pair<string, int>> info2;
     vector<Core> cores;
     CacheSimulator cac;
+    Cache2 cac2;
 
 public:
-    Processor(int numCores, int x, int y, int z): cac(x,y,z)
+    Processor(int numCores, int cacheSize, int blockSize, int associativity): cac(cacheSize,blockSize,associativity), cac2(cacheSize*4, blockSize, associativity)
     {
         cores.resize(numCores);
     }
@@ -34,13 +35,21 @@ public:
                 if(j==0)
                 {
                     int* xyz = reinterpret_cast<int*>(&cores[j].program[cores[j].pc]);
-                    cac.access(*xyz);
+                    bool hmm = cac.access(*xyz);
+                    if(!hmm)
+                    {
+                        cac2.access(*xyz);
+                    }
                     cores[j].fetch(memory, info1,cores[j].pc);
                 }
                 if(j==1)
                 {
                     int* xyz = reinterpret_cast<int*>(&cores[j].program[cores[j].pc]);
-                    cac.access(*xyz);
+                    bool hmm1 = cac.access(*xyz);
+                    if(!hmm1)
+                    {
+                        cac2.access(*xyz);
+                    }
                     cores[j].fetch(memory, info2,cores[j].pc);
                 }
             }
@@ -127,6 +136,7 @@ public:
 
     void print_hit_rate()
     {
-        cout<<"Hit-Rate for the Cache(Between 0 to 1): "<<cac.hit_rate()<<endl;
+        cout<<"Hit-Rate for the first level Cache : "<<cac.hit_rate()*100<<" %"<<endl;
+        cout<<"Hit-Rate for the second level Cache : "<<cac2.hit_rate()*100<<" %"<<endl;
     }
 };

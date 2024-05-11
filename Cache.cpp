@@ -38,7 +38,7 @@ public:
     }
 
     // Access cache to read/write data
-    void access(int address) 
+    bool access(int address) 
     {
         int setIndex = (address / blockSize) % numSets;
         int tag = address / (blockSize * numSets);
@@ -51,13 +51,13 @@ public:
                 // Cache hit
                 cache[setIndex][i].accessTime = memoryAccess; // Update access time
                 hit++;
-                return;
+                return true;
             }
         }
         // Cache miss
         insertBlock(address);
         miss++;
-        return;
+        return false;
     }
 
     // Insert block into cache
