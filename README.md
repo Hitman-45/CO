@@ -4,6 +4,11 @@
 #### CS22B016 Chatse Siddhant M
 ---
 
+Date:- 8-May-2024(Phase-4)
+Members : Shankhesh 
+Decisions : I decided to make last level(second level) cache for the processor. In which i designed cache class two same as class one.
+But the sizes of the both classes are diffrent and both classes are inclusive. If i will not find anything in class one then i will go in the class two. Hit rates of the both classes are independent. And i am printing those hit rates.Nothing more.
+
 Date:- 9-April-2024
 Members : Shankhesh 
 Decisions : Now previous design is working properly so i'll just add replacement policy in it. (I entered LRU and MRU replacement policy). That's how i completed my project phase three.
